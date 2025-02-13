@@ -14,6 +14,13 @@ We demonstrate that our method can provide unified long-term data sets at the hi
 ## Installation
 To install the `ITI` tool we recommend to use the [installation](https://iti-documentation.readthedocs.io/en/latest/installation/index.html) guide provided in the documentation.
 
+```
+conda create -n iti python=3.10
+conda activate iti
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip install -e .
+```
+
 ## Usage
 We provide an [example gallery](https://iti-documentation.readthedocs.io/en/latest/generated/gallery/index.html) that can be used as a starting point. A complete notebook with all the example steps (download &rarr; preprocessing &rarr; translation &rarr; visualization) can be found in the ``examples`` folder.
 
