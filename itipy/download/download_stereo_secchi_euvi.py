@@ -24,16 +24,13 @@ class STEREOEUVIDownloader:
         ds_path (str): Path to the directory where the downloaded data should be stored.
         n_workers (int): Number of worker threads for parallel download.
         wavelengths (list): List of wavelengths to download.
-        round (bool): Round the time to the nearest hour.
         quality_check (bool): Perform quality check on the downloaded files.
     """
     def __init__(self, ds_path, n_workers=4,
                 wavelengths=[171, 195, 284, 304],
-                round=True,
                 quality_check=True):
         self.ds_path = ds_path
         self.n_workers = n_workers
-        self.round = round
         self.quality_check = quality_check
 
         self.wavelengths = wavelengths
@@ -71,9 +68,10 @@ class STEREOEUVIDownloader:
         Returns:
             str: Path to the downloaded file.
         """
-        t = round_hour(sample.obstime) if self.round else sample.obstime
         dir = Path(self.ds_path) / sample.source / str(sample.wavelength)
-        tt = t.isoformat('T', timespec='seconds').replace(':', '')
+        # t = sample.obstime
+        # tt = t.isoformat('T', timespec='seconds').replace(':', '')
+        tt = sample.dateobs
         fits_path = dir / f"{tt}.fits"
         if fits_path.exists():
             return fits_path
@@ -90,7 +88,7 @@ class STEREOEUVIDownloader:
     
     def get_data(self, stereo_url, fts_list, source):
         # Create url list until all possible wavelengths are found.
-        possible_values = {171, 195, 284, 304}
+        possible_values = set(self.wavelengths)
         seen_values = set()
 
         data = []
@@ -104,6 +102,7 @@ class STEREOEUVIDownloader:
 
             info = {}
             info['obstime'] = datetime.strptime(f.get('href')[:15], "%Y%m%d_%H%M%S")
+            info['dateobs'] = datetime.strptime(header['DATE-OBS'], "%Y-%m-%dT%H:%M:%S.%f").strftime("%Y%m%d_%H%M%S")
             info['wavelength'] = header['WAVELNTH']
             info['source'] = source
             info['url'] = url

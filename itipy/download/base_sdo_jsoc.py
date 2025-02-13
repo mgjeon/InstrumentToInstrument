@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import pandas as pd
 from astropy.io import fits
@@ -40,7 +41,8 @@ class BaseSDOJSOCDownloader:
         header, segment, t = sample
         dir, desc = self.set_dir_desc()
         try:
-            tt = t.isoformat('T', timespec='seconds').replace(':', '')
+            # tt = t.isoformat('T', timespec='seconds').replace(':', '')
+            tt = datetime.strptime(header['DATE-OBS'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y%m%d_%H%M%S")
             map_path = dir / ('%s.fits' % tt)
             if map_path.exists():
                 return map_path
