@@ -78,3 +78,17 @@ fabric.properties
 /scripts/
 /result/
 /result_v2/
+
+*.egg-info/
+**/iti-dataset/
+**/__pycache__/
+*.DS_Store
+*.pt
+*.fts
+*.fits
+*.zip
+*.npy
+*.jp2
+examples/**/compare
+examples/**/data
+examples/**/dataset
