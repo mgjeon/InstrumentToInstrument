@@ -1,3 +1,4 @@
+import logging
 import argparse
 import multiprocessing
 from pathlib import Path
@@ -36,8 +37,12 @@ class SDOHMIDownloader(BaseSDOJSOCDownloader):
         self.series = series
         [(Path(ds_path) / s).mkdir(parents=True, exist_ok=True) for s in series]
 
-        self.logger = self.get_logger('SDOHMIDownloader')
         self.drms_client = drms.Client(email=email)
+
+        logging.basicConfig(level=logging.INFO, 
+                            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", force=True, 
+                            handlers=[logging.FileHandler(f"{ds_path}/info.log"), logging.StreamHandler()])
+        self.logger = logging.getLogger('SDOHMIDownloader')
 
     def set_dir_desc(self):
         header, segment, t = self.sample

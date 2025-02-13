@@ -1,3 +1,4 @@
+import logging
 import argparse
 import multiprocessing
 from pathlib import Path
@@ -33,8 +34,12 @@ class SDOAIAEUVDownloader(BaseSDOJSOCDownloader):
         self.wavelengths = [str(wl) for wl in wavelengths]
         [(Path(ds_path) / wl).mkdir(parents=True, exist_ok=True) for wl in self.wavelengths]
 
-        self.logger = self.get_logger('SDOAIAEUVDownloader')
         self.drms_client = drms.Client(email=email)
+
+        logging.basicConfig(level=logging.INFO, 
+                            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", force=True, 
+                            handlers=[logging.FileHandler(f"{ds_path}/info.log"), logging.StreamHandler()])
+        self.logger = logging.getLogger('SDOAIAEUVDownloader')
 
     def set_dir_desc(self):
         header, segment, t = self.sample

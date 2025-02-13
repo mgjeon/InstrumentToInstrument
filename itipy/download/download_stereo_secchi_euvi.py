@@ -5,11 +5,10 @@ import multiprocessing
 from pathlib import Path
 from datetime import datetime
 
-import numpy as np
 import pandas as pd
 from astropy.io import fits
 
-from itipy.download.util import download_url, round_hour, get_bs
+from itipy.download.util import download_url, get_bs
 
 
 class STEREOEUVIDownloader:
@@ -38,25 +37,14 @@ class STEREOEUVIDownloader:
         [(Path(ds_path) / "a" / wl).mkdir(parents=True, exist_ok=True) for wl in dirs]
         [(Path(ds_path) / "b" / wl).mkdir(parents=True, exist_ok=True) for wl in dirs]
 
-        self.logger = self.get_logger('STEREOEUVIDownloader')
-
         root = "https://stereo-ssc.nascom.nasa.gov/data/ins_data/secchi/L0_YMD/"
         self.root_a = root + "a/img/euvi/"
         self.root_b = root + "b/img/euvi/"
 
-    def get_logger(self, name):
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.INFO)
-        file_handler = logging.FileHandler("{0}/{1}.log".format(self.ds_path, "info_log"))
-        file_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.INFO)
-        stream_handler.setFormatter(formatter)
-        logger.addHandler(stream_handler)
-        return logger
+        logging.basicConfig(level=logging.INFO, 
+                            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", force=True, 
+                            handlers=[logging.FileHandler(f"{ds_path}/info.log"), logging.StreamHandler()])
+        self.logger = logging.getLogger('STEREOEUVIDownloader')
 
     def download(self, sample):
         """
@@ -98,6 +86,7 @@ class STEREOEUVIDownloader:
             if self.quality_check:
                 if header['NAXIS1'] < 2048 or header['NAXIS2'] < 2048 or header['NMISSING'] != 0:
                     self.logger.info(f"Invalid file ({source.upper()}): {f.get('href')}")
+                    self.logger.info(f"NAXIS1: {header['NAXIS1']} NAXIS2: {header['NAXIS2']} NMISSING: {header['NMISSING']}")
                     continue
 
             info = {}
@@ -109,7 +98,7 @@ class STEREOEUVIDownloader:
             data.append(info)
 
             seen_values.add(int(header['WAVELNTH']))
-            if seen_values == possible_values:
+            if possible_values == possible_values.intersection(seen_values):
                 break
         return data
     
@@ -124,7 +113,7 @@ class STEREOEUVIDownloader:
 
         bs = get_bs(stereo_url)
         if bs:
-            fts_re = re.compile(datetime.strftime(date, "%Y%m%d") + ".*.fts")
+            fts_re = re.compile(datetime.strftime(date, "%Y%m%d") + ".*n4.*.fts")
             fts_list = bs.find_all('a', {'href': fts_re})
             if len(fts_list) > 0:
                 i = self.get_idx(fts_list, date)
@@ -135,16 +124,11 @@ class STEREOEUVIDownloader:
             self.logger.info(f"No files found for STEREO {source.upper()}")
             return queue
         
+        queue = []
         df = pd.DataFrame(data)
-        df_171 = df[df['wavelength'] == 171].sort_values(by='obstime').reset_index(drop=True)
-        df_195 = df[df['wavelength'] == 195].sort_values(by='obstime').reset_index(drop=True)
-        df_284 = df[df['wavelength'] == 284].sort_values(by='obstime').reset_index(drop=True)
-        df_304 = df[df['wavelength'] == 304].sort_values(by='obstime').reset_index(drop=True)
-        
-        queue.append(df_171.iloc[0])
-        queue.append(df_195.iloc[0])
-        queue.append(df_284.iloc[0])
-        queue.append(df_304.iloc[0])
+        for w in self.wavelengths:
+            df_w = df[df['wavelength'] == w].sort_values(by='obstime').reset_index(drop=True)
+            queue.append(df_w.iloc[0])
         return queue
 
     def downloadDate(self, date):

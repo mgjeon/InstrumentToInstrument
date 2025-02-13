@@ -89,6 +89,5 @@ fabric.properties
 *.zip
 *.npy
 *.jp2
-examples/**/compare
-examples/**/data
-examples/**/dataset
+examples/**/data/
+examples/**/dataset/

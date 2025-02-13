@@ -16,16 +16,6 @@ class BaseSDOJSOCDownloader:
 
     def __init__(self):
         pass
-
-    def get_logger(self, name):
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.INFO)
-        file_handler = logging.FileHandler("{0}/{1}.log".format(self.ds_path, "info_log"))
-        file_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-        return logger  
     
     def download(self, sample):
         """
