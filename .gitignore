@@ -78,3 +78,6 @@ fabric.properties
 /scripts/
 /result/
 /result_v2/
+
+*.egg-info/
+**/__pycache__/

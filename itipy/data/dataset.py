@@ -3,7 +3,7 @@ import glob
 import logging
 import os
 import random
-from collections import Iterable
+from collections.abc import Iterable
 from enum import Enum
 from typing import List, Union
 

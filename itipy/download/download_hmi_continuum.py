@@ -38,7 +38,7 @@ class HMIContinuumDownloader:
                 logging.StreamHandler()
             ])
 
-        self.drms_client = drms.Client(email=email, verbose=False)
+        self.drms_client = drms.Client(email=email)
 
     def download(self, data):
         """
@@ -51,7 +51,7 @@ class HMIContinuumDownloader:
             str: Path to the downloaded file.
         """
         header, segment, t = data
-        map_path = os.path.join(self.ds_path, '%s.fits' % t.isoformat('T', timespec='seconds'))
+        map_path = os.path.join(self.ds_path, '%s.fits' % (t.isoformat('T', timespec='seconds')).replace(':', ''))
         if os.path.exists(map_path):
             return map_path
         # load map

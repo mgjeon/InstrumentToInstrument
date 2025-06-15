@@ -30,7 +30,7 @@ class SDODownloader:
         self.n_workers = n_workers
         #[os.makedirs(os.path.join(base_path, wl), exist_ok=True) for wl in self.wavelengths + ['6173']]
         [os.makedirs(os.path.join(base_path, wl), exist_ok=True) for wl in self.wavelengths]
-        self.drms_client = drms.Client(email=email, verbose=False)
+        self.drms_client = drms.Client(email=email)
 
     def download(self, sample):
         """
@@ -45,7 +45,7 @@ class SDODownloader:
         header, segment, t = sample
         try:
             dir = os.path.join(self.ds_path, '%d' % header['WAVELNTH'])
-            map_path = os.path.join(dir, '%s.fits' % t.isoformat('T', timespec='seconds'))
+            map_path = os.path.join(dir, '%s.fits' % (t.isoformat('T', timespec='seconds')).replace(':', ''))
             if os.path.exists(map_path):
                 return map_path
             # load map

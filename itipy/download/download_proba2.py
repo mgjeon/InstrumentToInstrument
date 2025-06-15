@@ -64,7 +64,7 @@ class PROBA2Downloader:
         Returns:
             str: Path to the downloaded file.
         """
-        file_path = os.path.join(self.base_path, str(wl), "%s.fits" % query_date.isoformat("T", timespec='seconds'))
+        file_path = os.path.join(self.base_path, str(wl), "%s.fits" % (query_date.isoformat("T", timespec='seconds')).replace(":", ""))
         if os.path.exists(file_path):
             return file_path
         #

@@ -120,7 +120,7 @@ class LoadMapEditor(Editor):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             s_map = Map(data)
-            s_map.meta['timesys'] = 'tai'  # fix leap seconds
+            # s_map.meta['timesys'] = 'tai'  # fix leap seconds
             return s_map, {'path': data}
 
 
@@ -1131,7 +1131,7 @@ class LimbDarkeningCorrectionEditor(Editor):
     def call(self, s_map, **kwargs):
         coords = all_coordinates_from_map(s_map)
         radial_distance = (np.sqrt(coords.Tx ** 2 + coords.Ty ** 2) / s_map.rsun_obs).value
-        radial_distance[radial_distance >= self.limb_offset] = np.NaN
+        radial_distance[radial_distance >= self.limb_offset] = np.nan
         ideal_correction = np.cos(radial_distance * np.pi / 2)
 
         condition = np.logical_not(np.isnan(np.ravel(ideal_correction)))

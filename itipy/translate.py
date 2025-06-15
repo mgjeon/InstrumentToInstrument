@@ -28,7 +28,7 @@ class InstrumentToInstrument:
         n_workers (int): Number of workers for the multiprocessing pool.
     """
 
-    def __init__(self, model_name=None, model_path=None, device=None, depth_generator=3, patch_factor=0, n_workers=4):
+    def __init__(self, model_name=None, model_path=None, device=None, depth_generator=3, patch_factor=0, n_workers=4, weights_only=False):
         assert model_name is not None or model_path is not None, 'Either model_name or model_path must be provided.'
         self.patch_factor = patch_factor
         self.depth_generator = depth_generator
@@ -37,7 +37,7 @@ class InstrumentToInstrument:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if model_path is None:
             model_path = self._getModelPath(model_name)
-        self.generator = torch.load(model_path, map_location=device)
+        self.generator = torch.load(model_path, map_location=device, weights_only=weights_only)
         self.generator.to(device)
         self.generator.eval()
         self.device = device
